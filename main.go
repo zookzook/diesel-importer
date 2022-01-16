@@ -75,21 +75,25 @@ func main() {
 
 	s := utils.NewStopWatch()
 
-	s.Start("import data")
+	for {
+		s.Start("import data")
 
-	stations, err := fetchData(cfg)
+		stations, err := fetchData(cfg)
 
-	if err != nil {
-		log.Fatal(err)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = saveData(client, stations)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		s.Stop()
+
+		log.Println(s.String())
+
+		time.Sleep(5 * time.Minute)
 	}
-
-	err = saveData(client, stations)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	s.Stop()
-
-	log.Println(s.String())
 }

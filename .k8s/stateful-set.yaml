@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+spec:
+  serviceName: "mongodb"
+  selector:
+    matchLabels:
+      name: "mongodb"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: "mongodb"
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        image: arm64v8/mongo:4
+        name: mongodb
+        - command:
+            - mongod
+            - --replSet
+            - diesel
+            - --bind_ip
+            - localhost,$(MY_POD_IP)
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-persistent-storage
+
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"
+        resources:
+          requests:
+            storage: 2Gi

@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"io"
+	"time"
 )
 
 type Price struct {
@@ -12,12 +13,13 @@ type Price struct {
 }
 
 type Station struct {
-	Name   string
-	Prices map[string]Price
+	Name       string
+	Prices     map[string]Price
+	InsertedAt time.Time `bson:"inserted_at"`
 }
 
 func NewStation(name string, prices map[string]Price) Station {
-	return Station{name, prices}
+	return Station{name, prices, time.Now().UTC()}
 }
 
 func Parse(body io.Reader) ([]Station, error) {

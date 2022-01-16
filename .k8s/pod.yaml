@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: diesel-importer-app
+spec:
+  containers:
+    - name: diesel-importer
+      image: zookzook/diesel-importer
+      envFrom:
+        - configMapRef:
+            name: diesel-importer-config-map
+            optional: false
